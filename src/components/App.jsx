@@ -1,75 +1,64 @@
-import { Component } from 'react';
-import PropTypes from 'prop-types';
-import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
+import { useState } from 'react';
+import FeedbackOptions from './FeedbackOptions/FeedbackOptions';
 import { Section } from './Section/Section';
-import { Statistics } from './Statistics/Statistics';
+import Statistics from './Statistics/Statistics';
 import { Notification } from './Notification/Notification';
 
-export class App extends Component {
-  static defaultProps = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+export default function App() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+
+  const onLeaveFeedback = feedback => {
+    switch (feedback) {
+      case 'good':
+        setGood(prevState => prevState + 1);
+        break;
+
+      case 'neutral':
+        setNeutral(neutral + 1);
+        break;
+
+      case 'bad':
+        setBad(bad + 1);
+        break;
+
+      default:
+        return;
+    }
   };
 
-  static propTypes = {
-    good: PropTypes.number,
-    neutral: PropTypes.number,
-    bad: PropTypes.number,
+  const total = bad + good + neutral;
+
+  const positivePercentage = total => {
+    return total === 0 ? 0 : Math.round((good / total) * 100);
   };
 
-  state = {
-    good: this.props.good,
-    neutral: this.props.neutral,
-    bad: this.props.bad,
-  };
-
-  onLeaveFeedback = feedback => {
-    // console.log([feedback]);
-    this.setState(prevState => ({ [feedback]: prevState[feedback] + 1 }));
-  };
-
-  countTotalFeedback = () => {
-    return this.state.bad + this.state.good + this.state.neutral;
-  };
-
-  countPositiveFeedbackPercentage = total => {
-    return total === 0 ? 0 : Math.round((this.state.good / total) * 100);
-  };
-
-  render() {
-    const { good, neutral, bad } = this.state;
-    const total = this.countTotalFeedback();
-    const positivePercentage = this.countPositiveFeedbackPercentage(total);
-    // console.log(total);
-    // console.log(positivePercentage);
-
-    return (
-      <div
-        style={{
-          paddingLeft: '30px',
-        }}
-      >
-        <Section title="Please leave feedback">
-          <FeedbackOptions
-            options={['good', 'neutral', 'bad']}
-            onLeaveFeedback={this.onLeaveFeedback}
+  return (
+    <div
+      style={{
+        paddingLeft: '30px',
+      }}
+    >
+      <Section title="Please leave feedback">
+        <FeedbackOptions
+          options={['good', 'neutral', 'bad']}
+          onLeaveFeedback={onLeaveFeedback}
+        />
+      </Section>
+      <Section title="Statistics">
+        {total === 0 ? (
+          <Notification message="There is no feedback" />
+        ) : (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={total}
+            positivePercentage={positivePercentage(total)}
           />
-        </Section>
-        <Section title="Statistics">
-          {total === 0 ? (
-            <Notification message="There is no feedback" />
-          ) : (
-            <Statistics
-              good={good}
-              neutral={neutral}
-              bad={bad}
-              total={total}
-              positivePercentage={positivePercentage}
-            />
-          )}
-        </Section>
-      </div>
-    );
-  }
+        )}
+      </Section>
+    </div>
+  );
 }
