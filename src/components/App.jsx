@@ -16,11 +16,11 @@ export default function App() {
         break;
 
       case 'neutral':
-        setNeutral(neutral + 1);
+        setNeutral(prevState => prevState + 1);
         break;
 
       case 'bad':
-        setBad(bad + 1);
+        setBad(prevState => prevState + 1);
         break;
 
       default:
@@ -28,10 +28,12 @@ export default function App() {
     }
   };
 
-  const total = bad + good + neutral;
+  const countTotalFeedback = () => {
+    return bad + good + neutral;
+  };
 
-  const positivePercentage = total => {
-    return total === 0 ? 0 : Math.round((good / total) * 100);
+  const positivePercentage = () => {
+    return Math.round((good / countTotalFeedback()) * 100);
   };
 
   return (
@@ -47,15 +49,15 @@ export default function App() {
         />
       </Section>
       <Section title="Statistics">
-        {total === 0 ? (
+        {countTotalFeedback() === 0 ? (
           <Notification message="There is no feedback" />
         ) : (
           <Statistics
             good={good}
             neutral={neutral}
             bad={bad}
-            total={total}
-            positivePercentage={positivePercentage(total)}
+            total={countTotalFeedback()}
+            positivePercentage={positivePercentage()}
           />
         )}
       </Section>
